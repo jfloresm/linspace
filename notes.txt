@@ -1,0 +1,3 @@
+-geng already deals with duality of linear spaces
+	-Since it prints all non-isomorphic graphs on n edges (independent on partitions)
+-In terms of the adjacency matrices of co

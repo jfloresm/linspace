@@ -1,0 +1,27 @@
+1.Which partial linear spaces are self dual.
+-Use automorphism group.
+
+2. Embedding in a classical projective plane.
+-Over Which Characteristics
+
+3. Embedding in a non-classical plane.
+
+4. finite planes moorhouse website
+
+5. Not exhaustive subsets of planes but random selection
+	-just random will be too sparse
+	-want subsets to be as connected as possible
+	-look for saturated ones (condition for saturation)?
+
+6. Randomization Theory (randomized search)
+- can use C random generator 
+
+Avoid Trivial Things
+-Choose large automorphism group
+
+7. Use pappus configuration, Desargues 
+
+8. Which SPLS have the nicest automorphism groups (before embedaility)
+
+9. For embedding, use grobner basis methods??
+
