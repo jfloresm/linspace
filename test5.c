@@ -1,7 +1,7 @@
 #define MAXN 1000    /* Define this before including nauty.h */
 #define MAXCHAR 1000
 #include "nauty.h"   /* which includes <stdio.h> and other system files */
-#include <stdio.h>
+//#include <stdio.h>
 #include <unistd.h>
 
 //////////////////////////////////////////////////////////
@@ -10,19 +10,19 @@
 
 int notin(int *a,int b,int n){
 
-	int t1,t2;
+	int i,k;
 
-	t2 = 1;
+	k = 1;
 
-	for(t1 = 0; t1<n; t1++){
-		if(b == a[t1]){
-			t2=0;
+	for(i = 0; i<n; i++){
+		if(b == a[i]){
+			k=0;
 			break;
 		}
 
 	}
 
-	return(t2);
+	return(k);
 
 }
 
@@ -33,10 +33,10 @@ int notin(int *a,int b,int n){
 
 int zero(int *a,int n){
 
-	int t1;
+	int i;
 	
-	for(t1=0; t1<n; t1++){
-		a[t1] = n+1;
+	for(i=0; i<n; i++){
+		a[i] = n+1;
 	}
 
 	return(0);
@@ -100,7 +100,7 @@ FILE *file;
 
 int b[n];
 int q[n];
-int vec[n];
+int b1[n];
 int b2[n];
 
 
@@ -137,7 +137,7 @@ defaults.  writeautoms=TRUE causes automorphisms to be written.     */
 	sleep(.001);
 
 
-	file = fopen("/home/jfloresm/Documents/Research/linspace/nauty26r11/plspace7.txt","r");
+	file = fopen("/home/jfloresm/Documents/Research/linspace/graphs/plspace7.txt","r");
 		//printf("2\n");
 		if(file==NULL){
 			printf("EXIT_FAILURE \n");
@@ -266,49 +266,37 @@ Test that graphs are read properly
 
 
 
-for(i = 10; i < 11; i++){
+for(i = 0; i < count; i++){
 	
 	a = c[i][0];
-	//printf("%d %d\n",a,t[i][0][1]);
 	nzero(q,n);
-	//printf("q is %d %d %d %d %d %d %d \n",h, q[0],q[1],q[2],q[3],q[4],q[5]);
-	//printf("h \n");
-	//zero(vec,n);
+	zero(b1,n);
 	zero(b2,n);
-	//printf(" b      2 is %d %d %d %d %d %d %d \n", b2[0],b2[1],b2[2],b2[3],b2[4],b2[5],b2[6]);
 	zero(b,n);
-	//printf(" b      2 is %d %d %d %d %d %d %d \n", b2[0],b2[1],b2[2],b2[3],b2[4],b2[5],b2[6]);
-	//vec[0] = 0;
-	//printf("%d %d \n", &vec[0], &b2[4]);
-	//printf(" b      2 is %d %d %d %d %d %d %d \n", b2[0],b2[1],b2[2],b2[3],b2[4],b2[5],b2[6]);
+	b1[0] = 0;
 	h = 0;	
-	//printf(" b      2 is %d %d %d %d %d %d %d \n", b2[0],b2[1],b2[2],b2[3],b2[4],b2[5],b2[6]);	
 	u = 0;
 	f = 0;
 	f1 = 0;
 	e = 0;
 	d = 1;
-	//printf(" b      2 is %d %d %d %d %d %d %d \n", b2[0],b2[1],b2[2],b2[3],b2[4],b2[5],b2[6]);
+
 	for(l = 0; l<a; l++){
 		b[l] = t[i][h][l];    //0 to WORDSIZE -1
 		continue;
-	}
-	/*	
-	
-	printf(" b      2 is %d %d %d %d %d %d %d \n", b2[0],b2[1],b2[2],b2[3],b2[4],b2[5],b2[6]);
+	}	
 
 	while((e+d)!=n && (u<n)){
 		
-		//nzero(q,n);
 		q[u] = h;
-		printf("u = %d, h = %d\n", u,h);
+		printf("u = %d, h = %d, f = %d, f1 = %d\n", u,h,f,f1);
 	
 		if(u %2 == 0){
 
 			for(j= 0; j<a; j++){
 				if(notin(b2,b[j],n)==1){
 					b2[e] = b[j];
-					printf("%d %d \n", b2[e],b[j]);
+					//printf("%d %d \n", b2[e],b[j]);
 					e+=1;
 				}
 			}
@@ -328,7 +316,7 @@ for(i = 10; i < 11; i++){
 				continue;
 			}
 			
-			printf(" b%d is %d %d %d %d \n",h, b[0],b[1],b[2],b[3]);
+			//printf(" b%d is %d %d %d %d \n",h, b[0],b[1],b[2],b[3]);
 			c1 = 0;
 
 			for(j= 0; j<a; j++){
@@ -342,6 +330,12 @@ for(i = 10; i < 11; i++){
 				f+=1;
 				if(b2[f] == (n+1)){
 					h = b1[f1];
+					a = c[i][h];
+					zero(b,n);
+					for(j = 0; j<a; j++){
+						b[j]=t[i][h][j];    //0 to WORDSIZE -1
+						continue;
+					}
 					u +=1;
 				}
 
@@ -381,6 +375,13 @@ for(i = 10; i < 11; i++){
 					f+=1;
 					if(b2[f] == (n+1)){
 						h = b1[f1];
+						a = c[i][h];
+
+						zero(b,n);
+						for(j= 0; j<a; j++){
+							b[j]=t[i][h][j];    //0 to WORDSIZE -1
+							continue;
+						}
 						u1 += 1;
 						u = u1;
 					}
@@ -407,6 +408,9 @@ for(i = 10; i < 11; i++){
 				}
 			}
 			
+			printf(" b%d is %d %d %d %d %d %d %d \n", h,b[0],b[1],b[2],b[3],b[4],b[5],b[6]);
+			
+			printf(" b      1 is %d %d %d %d %d %d %d \n", b1[0],b1[1],b1[2],b1[3],b1[4],b1[5],b1[6]);
 			
 			f +=1;
 			
@@ -433,6 +437,13 @@ for(i = 10; i < 11; i++){
 				f1+=1;
 				if(b1[f1] == (n+1)){
 					h = b2[f];
+					a = c[i][h];
+					zero(b,n);
+					for(j = 0; j<a; j++){
+						b[j]=t[i][h][j];    //0 to WORDSIZE -1
+						continue;
+					}
+					
 					u+=1;
 				}
 				
@@ -470,6 +481,13 @@ for(i = 10; i < 11; i++){
 					f1+=1;
 					if(b1[f1] == (n+1)){
 						h = b2[f];
+						a = c[i][h];
+
+						zero(b,n);
+						for(j= 0; j<a; j++){
+							b[j]=t[i][h][j];    //0 to WORDSIZE -1
+							continue;
+						}
 						u2+=1;
 						u = u2;
 					}
@@ -491,17 +509,17 @@ for(i = 10; i < 11; i++){
 		e = first(b2,n);
 		d = first(b1,n);
 
-		printf("f = %d, f1 = %d \n", f, f1);
+		//printf("f = %d, f1 = %d \n", f, f1);
 
-		printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d,b1[4] = %d,b1[5] = %d,b1[6] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d,b2[4] = %d,b2[5] = %d,b2[6] = %d \n", b1[0], b1[1],b1[2], b1[3],b1[4], b1[5],b1[6],b2[0], b2[1],b2[2], b2[3],b2[4], b2[5],b2[6]);
-
-	}
-	
 		//printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d,b1[4] = %d,b1[5] = %d,b1[6] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d,b2[4] = %d,b2[5] = %d,b2[6] = %d \n", b1[0], b1[1],b1[2], b1[3],b1[4], b1[5],b1[6],b2[0], b2[1],b2[2], b2[3],b2[4], b2[5],b2[6]);
 
+	}
+		printf("i = %d \n",i);
+		printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d,b1[4] = %d,b1[5] = %d,b1[6] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d,b2[4] = %d,b2[5] = %d,b2[6] = %d \n", b1[0], b1[1],b1[2], b1[3],b1[4], b1[5],b1[6],b2[0], b2[1],b2[2], b2[3],b2[4], b2[5],b2[6]);
+		printf("\n");
 	
 //printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d \n", b1[0], b1[1],b1[2], b1[3],b2[0], b2[1],b2[2], b2[3]);
-*/
+
 
 }
 
