@@ -96,6 +96,7 @@ int first(int *a, int n){
 
 int main(){
 int i,i8,j,j1,k,l,m,n,a,d,e,f,h,f1,e1,d1,c1,c2,flag1,flag2,u,u1,u2;
+long int y, bin1, bin2;
 FILE *file;
 
 int b[n];
@@ -271,7 +272,7 @@ Test that graphs are read properly
 //For each graph, create two vectors b1,b2, which correspond to the vertex partition of each graph, and save them into array change for further use
 //*/
 ///////////////////////////////////////////////////////////////////////////
-
+/*
 for(i = 0; i < count; i++){
 	
 	a = c[i][0];
@@ -547,11 +548,24 @@ for(i = 0; i < count; i++){
 
 	
 	fclose(file);
-		
+*/		
+	y = 0;
+	bin1 = g[1][6]|y;	
+                                           
+	for(i = 63; i >= 0; i--){
+        	bin2 = bin1 >> i;
 
-	                                                        
+        	if(bin2 & 1){
+                	printf("1");
+        	}
 
+        	else{
+                	printf("0");
+        	}
+	}
+	printf("\n");
 
+	//printf("%ld \n", g[0][0]);
 
 return 0;
 
