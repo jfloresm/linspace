@@ -43,19 +43,19 @@ int zero(int *a,int n){
 }
 
 //////////////////////////////////////////////////////////
-//converts every entry pointed to by a equal to n+1
+//Copies vector a unto vector b
 //////////////////////////////////////////////////////////	
 
-/*int zero2(int *a,int n){
+int copy(int *a, int *b, int n){
 
-	int t1;
+	int i;
 	
-	for(t1=0; t1<n; t1++){
-		a[t1] = n+1;
+	for(i=0; i<n; i++){
+		b[i] = a[i];
 	}
 
 	return(0);
-}*/
+}
 
 //////////////////////////////////////////////////////////
 //converts every entry pointed to by a equal to n+1
@@ -159,8 +159,10 @@ Count number of graphs in each file
 
 	graph g[count][n*m];		// 2 d array. 1st dimension tells you which graph
 	graph g1[count][n*m];		// 2 d array. 1st dimension tells you which graph
-	int c[count][n*m];
-	int t[count][n*m][n];
+	int c[count][n*m];		//each row is number of 1's in each row of g
+	int t[count][n*m][n];		// each row is the position of 1's in each row of g
+
+	int change[count][2][n*m];	//will contain partitions of bipartite graph
 	
 	rewind(file);
 
@@ -231,7 +233,7 @@ zeros the matrix which will contain the adjacency of each row
 
 /////////////////////////////////////////////////////////////////////////
 /*
-zeros the matrix which will contain the adjacency of each row
+copies location of 1 in each row of adj matrix into t
 */                 
 /////////////////////////////////////////////////////////////////////////
 
@@ -264,7 +266,11 @@ Test that graphs are read properly
 
 */
 
-
+/////////////////////////////////////////////////////////////////////////
+///*
+//For each graph, create two vectors b1,b2, which correspond to the vertex partition of each graph, and save them into array change for further use
+//*/
+///////////////////////////////////////////////////////////////////////////
 
 for(i = 0; i < count; i++){
 	
@@ -289,7 +295,7 @@ for(i = 0; i < count; i++){
 	while((e+d)!=n && (u<n)){
 		
 		q[u] = h;
-		printf("u = %d, h = %d, f = %d, f1 = %d\n", u,h,f,f1);
+//		printf("u = %d, h = %d, f = %d, f1 = %d\n", u,h,f,f1);
 	
 		if(u %2 == 0){
 
@@ -300,9 +306,9 @@ for(i = 0; i < count; i++){
 					e+=1;
 				}
 			}
-			printf(" b%d is %d %d %d %d %d %d %d \n", h,b[0],b[1],b[2],b[3],b[4],b[5],b[6]);
+//			printf(" b%d is %d %d %d %d %d %d %d \n", h,b[0],b[1],b[2],b[3],b[4],b[5],b[6]);
 			
-			printf(" b      2 is %d %d %d %d %d %d %d \n", b2[0],b2[1],b2[2],b2[3],b2[4],b2[5],b2[6]);
+//			printf(" b      2 is %d %d %d %d %d %d %d \n", b2[0],b2[1],b2[2],b2[3],b2[4],b2[5],b2[6]);
 			
 			h = b2[f];
 
@@ -408,9 +414,9 @@ for(i = 0; i < count; i++){
 				}
 			}
 			
-			printf(" b%d is %d %d %d %d %d %d %d \n", h,b[0],b[1],b[2],b[3],b[4],b[5],b[6]);
+		//	printf(" b%d is %d %d %d %d %d %d %d \n", h,b[0],b[1],b[2],b[3],b[4],b[5],b[6]);
 			
-			printf(" b      1 is %d %d %d %d %d %d %d \n", b1[0],b1[1],b1[2],b1[3],b1[4],b1[5],b1[6]);
+		//	printf(" b      1 is %d %d %d %d %d %d %d \n", b1[0],b1[1],b1[2],b1[3],b1[4],b1[5],b1[6]);
 			
 			f +=1;
 			
@@ -514,15 +520,36 @@ for(i = 0; i < count; i++){
 		//printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d,b1[4] = %d,b1[5] = %d,b1[6] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d,b2[4] = %d,b2[5] = %d,b2[6] = %d \n", b1[0], b1[1],b1[2], b1[3],b1[4], b1[5],b1[6],b2[0], b2[1],b2[2], b2[3],b2[4], b2[5],b2[6]);
 
 	}
-		printf("i = %d \n",i);
-		printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d,b1[4] = %d,b1[5] = %d,b1[6] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d,b2[4] = %d,b2[5] = %d,b2[6] = %d \n", b1[0], b1[1],b1[2], b1[3],b1[4], b1[5],b1[6],b2[0], b2[1],b2[2], b2[3],b2[4], b2[5],b2[6]);
-		printf("\n");
+		//printf("i = %d \n",i);
+		//printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d,b1[4] = %d,b1[5] = %d,b1[6] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d,b2[4] = %d,b2[5] = %d,b2[6] = %d \n", b1[0], b1[1],b1[2], b1[3],b1[4], b1[5],b1[6],b2[0], b2[1],b2[2], b2[3],b2[4], b2[5],b2[6]);
+		//printf("\n");
 	
 //printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d \n", b1[0], b1[1],b1[2], b1[3],b2[0], b2[1],b2[2], b2[3]);
-
+		copy(b1, change[i][0],n);
+		copy(b2, change[i][1],n);
 
 }
 
+	file = fopen("/home/jfloresm/Documents/Research/linspace/graphs/7partition.txt","w");
+        if(file==NULL){
+                printf("EXIT_FAILURE \n");
+        }
+
+	for(i = 0; i< count; i++){
+		for(j = 0; j< 2; j++){
+			for(k=0; k<n; k++){
+				fprintf(file,"%d ", change[i][j][k]);
+			}
+			fprintf(file,"\n");
+		}
+		fprintf(file,"\n");
+	}
+
+	
+	fclose(file);
+		
+
+	                                                        
 
 
 
