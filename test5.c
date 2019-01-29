@@ -94,15 +94,113 @@ int first(int *a, int n){
 
 }
 
+int first2(int *a, int n){
+
+	int i,k;
+
+	k = n;
+
+	for(i =0; i<n;i++){
+		if(a[i] == n+1){
+			k = i;
+			break;
+		}
+	}
+
+	
+	return(k);
+
+}
+
+int order(int *a,int n){
+	int i,k;
+
+	k = 0;
+
+	for(i=1; i< n-1; i++){
+		if(a[i+1] != a[i] +1){
+			k = 1;
+			break;
+		}
+	}
+
+	return k;
+}
+
+int 2order(int *a,n){
+
+	int i,j,t;
+	for(i = 0; i<n-1; i++){
+		for(j = i; j<n;j++){
+			if(a[i]>=a[j]+1){
+				t = a[i];
+				a[i] = a[j];
+				a[j] = t;
+			}
+		}
+	}
+
+	return(0);
+
+}
+				
+
+			
+
+long int swap(long int x, int p1, int p2){
+
+	long int set1,set2,xor,res;
+
+	set1 = (x>> (63-p1)) & ((1u << 1)-1);
+
+	set2 = (x>> (63-p2)) & ((1u << 1)-1);
+
+	xor = (set1^set2);
+
+	xor = (xor<<(63-p1))|(xor<<(63-p2));
+
+	res = x ^ xor;
+
+	return(res);
+}
+
+int min(int x, int y){
+
+	if(x <= y){
+		return(x);
+	}
+
+	else{
+		return(y);
+	}
+}
+
+/*
+int org(int *a,int n){
+	int i,j,k;
+
+	for(i=0; i< n-1; i++){
+		if(a[i+1] != a[i] +1){
+			k = 1;
+			break;
+		}
+	}
+
+	return k;
+}
+*/
+
 int main(){
-int i,i8,j,j1,k,l,m,n,a,d,e,f,h,f1,e1,d1,c1,c2,flag1,flag2,u,u1,u2;
-long int y, bin1, bin2;
+int i,i8,j,j1,k,l,m,n,a,d,e,f,h,f1,e1,d1,c1,c2,flag1,flag2,u,u1,u2,v1,v2,count1,count2,t,t2;
+long int y, bin1, bin2,temp;
 FILE *file;
 
 int b[n];
 int q[n];
 int b1[n];
 int b2[n];
+int b3[n];
+int b4[n];
 
 
 //static DEFAULTOPTIONS_GRAPH(options);
@@ -160,6 +258,8 @@ Count number of graphs in each file
 
 	graph g[count][n*m];		// 2 d array. 1st dimension tells you which graph
 	graph g1[count][n*m];		// 2 d array. 1st dimension tells you which graph
+	graph g2[count][n*m];		// 2 d array. 1st dimension tells you which graph
+
 	int c[count][n*m];		//each row is number of 1's in each row of g
 	int t[count][n*m][n];		// each row is the position of 1's in each row of g
 
@@ -193,16 +293,22 @@ Read graphs into Nauty format and save in 2d array graph g
 
 /////////////////////////////////////////////////////////////////////////
 /*
-Copy g into g1
+Copy g into g1 and g2
 */                 
 /////////////////////////////////////////////////////////////////////////
 
 	for(i =0; i<count; i++){
 		for(j = 0; j<n*m; j++){
 			g1[i][j] = g[i][j];
+			printf("%ld %ld \n", g[i][j],g1[i][j]);
 		}
 	}
 
+	for(i =0; i<count; i++){
+		for(j = 0; j<n*m; j++){
+			g2[i][j] = g[i][j];
+		}
+	}
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -272,7 +378,7 @@ Test that graphs are read properly
 //For each graph, create two vectors b1,b2, which correspond to the vertex partition of each graph, and save them into array change for further use
 //*/
 ///////////////////////////////////////////////////////////////////////////
-/*
+
 for(i = 0; i < count; i++){
 	
 	a = c[i][0];
@@ -530,7 +636,14 @@ for(i = 0; i < count; i++){
 		copy(b2, change[i][1],n);
 
 }
+/////////////////////////////////////////////////////////////////////////
+/////*
+////Write partitions of vertices to disk
+////*/
+////////////////////////////////////////////////////////////////////////
+//
 
+/*
 	file = fopen("/home/jfloresm/Documents/Research/linspace/graphs/7partition.txt","w");
         if(file==NULL){
                 printf("EXIT_FAILURE \n");
@@ -548,12 +661,23 @@ for(i = 0; i < count; i++){
 
 	
 	fclose(file);
-*/		
-	y = 0;
-	bin1 = g[1][6]|y;	
+
+
+*/
+
+
+/////////////////////////////////////////////////////////////////////////
+///*
+//For testing purposes
+//*/
+///////////////////////////////////////////////////////////////////////////
+//
+
+
+	y = swap(g2[8][0],5,6);
                                            
 	for(i = 63; i >= 0; i--){
-        	bin2 = bin1 >> i;
+        	bin2 = y >> i;
 
         	if(bin2 & 1){
                 	printf("1");
@@ -564,8 +688,62 @@ for(i = 0; i < count; i++){
         	}
 	}
 	printf("\n");
+	
+////////////////////////////////////////////////////////////////
+	
+	for(i = 0;i<count;i++){
 
-	//printf("%ld \n", g[0][0]);
+		v1 = first2(change[i][0],n);
+		v2 = first2(change[i][1],n);
+
+		2order(change[i][0],v1);
+	
+		if(order(change[i][0],v1)==0){
+		//	printf("i = %d\n",i);
+			continue;
+		}
+
+		for(j = 0; j<v1; j++){
+			b3[j] = change[i][0][j];
+		}
+
+		for(j = 0; j<v2; j++){
+			b3[j+v1] = change[i][1][j];
+		}
+		
+		for(j = 0; j<n; j++){
+			b4[j] = j;
+		}
+
+		t = b4[1];
+		b4[1] = b3[1];
+		b4[b3[1]] = t;
+		
+		
+
+		for(j=1; j<v1; j++){
+			
+			temp = g2[i][j];
+			g2[i][j] = g[i][b3[j]];
+			g[i][b3[j]] = temp;
+
+
+						
+
+
+		}	
+
+		
+	}
+			
+
+		
+			
+		
+			
+			
+
+	printf("%ld %ld \n", g[0][0],g1[0][0]);
 
 return 0;
 
