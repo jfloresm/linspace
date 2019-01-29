@@ -127,7 +127,7 @@ int order(int *a,int n){
 	return k;
 }
 
-int 2order(int *a,n){
+int order2(int *a,int n){
 
 	int i,j,t;
 	for(i = 0; i<n-1; i++){
@@ -144,7 +144,14 @@ int 2order(int *a,n){
 
 }
 				
-
+int choose(int *a, int x, int n){
+	int i;
+	for(i = 0; i<n; i++){
+		if(a[i] == x){
+			return(i);
+		}
+	}
+}
 			
 
 long int swap(long int x, int p1, int p2){
@@ -191,7 +198,7 @@ int org(int *a,int n){
 */
 
 int main(){
-int i,i8,j,j1,k,l,m,n,a,d,e,f,h,f1,e1,d1,c1,c2,flag1,flag2,u,u1,u2,v1,v2,count1,count2,t,t2;
+int i,i8,j,j1,k,l,m,n,a,d,e,f,h,f1,e1,d1,c1,c2,flag1,flag2,u,u1,u2,v1,v2,count1,count2,z,z2;
 long int y, bin1, bin2,temp;
 FILE *file;
 
@@ -300,7 +307,6 @@ Copy g into g1 and g2
 	for(i =0; i<count; i++){
 		for(j = 0; j<n*m; j++){
 			g1[i][j] = g[i][j];
-			printf("%ld %ld \n", g[i][j],g1[i][j]);
 		}
 	}
 
@@ -673,7 +679,7 @@ for(i = 0; i < count; i++){
 ///////////////////////////////////////////////////////////////////////////
 //
 
-
+/*
 	y = swap(g2[8][0],5,6);
                                            
 	for(i = 63; i >= 0; i--){
@@ -688,7 +694,7 @@ for(i = 0; i < count; i++){
         	}
 	}
 	printf("\n");
-	
+*/	
 ////////////////////////////////////////////////////////////////
 	
 	for(i = 0;i<count;i++){
@@ -696,10 +702,10 @@ for(i = 0; i < count; i++){
 		v1 = first2(change[i][0],n);
 		v2 = first2(change[i][1],n);
 
-		2order(change[i][0],v1);
+		order2(change[i][0],v1);
 	
 		if(order(change[i][0],v1)==0){
-		//	printf("i = %d\n",i);
+			printf("i = %d\n",i);
 			continue;
 		}
 
@@ -710,40 +716,66 @@ for(i = 0; i < count; i++){
 		for(j = 0; j<v2; j++){
 			b3[j+v1] = change[i][1][j];
 		}
+
+		for(j = 0; j<n; j++){
+			printf("%d ",b3[j]);
+		}
+
+		printf("\n");
 		
 		for(j = 0; j<n; j++){
 			b4[j] = j;
 		}
 
-		t = b4[1];
-		b4[1] = b3[1];
-		b4[b3[1]] = t;
-		
-		
 
 		for(j=1; j<v1; j++){
 			
+			z = b4[j];
+			z2 = choose(b4,b3[j],n);
+			b4[j] = b3[j];
+			b4[z2] = z;			
+
 			temp = g2[i][j];
-			g2[i][j] = g[i][b3[j]];
-			g[i][b3[j]] = temp;
+			g2[i][j] = g2[i][b4[j]];
+			g2[i][z2] = temp;					
 
-
-						
-
+			for(k = 0; k<n; k++){
+				g2[i][k] = swap(g2[i][k], j, z2);
+			}		
 
 		}	
 
 		
 	}
-			
+	
 
-		
-			
-		
-			
-			
+	for(i = 0; i<count; i++){
+		printf("Graph = %d \n", i+1);
+		for(k = 0;k<n;k++){
+			for(j = 63; j >= 63-(n-1); j--){
+               			bin2 = g2[i][k] >> j;
 
-	printf("%ld %ld \n", g[0][0],g1[0][0]);
+                		if(bin2 & 1){
+                        		printf("1");
+                		}
+
+                		else{		
+                        		printf("0");
+                		}
+       			 }
+
+			printf("\n");		
+
+		}
+
+		printf("\n");
+
+	}
+        printf("\n");
+
+			
+		
+	//printf("%ld %ld \n", g[0][0],g1[0][0]);
 
 return 0;
 
