@@ -295,7 +295,7 @@ int getpoint(long int *a,int n){
 }
 
 int main(){
-int i,i8,j,j1,k,l,m,n,a,d,e,f,h,f1,e1,d1,c1,c2,flag1,flag2,u,u1,u2,v1,v2,count1,count2,z,z2,gp,p,q1,q2;
+int i,i8,j,j1,k,l,m,n,a,d,e,f,h,f1,e1,d1,c1,c2,flag1,flag2,u,u1,u2,v1,v2,count1,count2,z,z2,gp,p,q1,q2,nump;
 long int y, bin1, bin2,temp;
 FILE *file;
 double half;
@@ -866,7 +866,7 @@ for(i = 0; i < count; i++){
 //Print out graphs in smo
 //*/
 ///////////////////////////////////////////////////////////////////////////
-
+/*
 	for(i = 0; i<count; i++){
 		printf("Graph = %d \n", i+1);
 		for(k = 0;k<n;k++){
@@ -891,7 +891,7 @@ for(i = 0; i < count; i++){
 	}
         printf("\n");
 
-
+*/
 zeroall(gr,count);
 zeroall(counter,count);
 //zeroall(aut,count);
@@ -1037,7 +1037,30 @@ for(j = 0; j<count;j++){
 
 */	
 
+	file = fopen("/home/jfloresm/Documents/Research/linspace/25s1.txt","r");
+		//printf("2\n");
+		if(file==NULL){
+			printf("EXIT_FAILURE \n");
+		}
 
+
+	rewind(file);
+
+	k = 0;
+
+	while((read = getline(&line, &len, file)) != -1){
+	//	printf("%d \n", read);	
+	//	sleep(.01);
+		k+=1;
+	}
+
+	a = n*n+n+1;
+
+	//int plane[][
+
+	fclose(file);
+
+	//printf("%d \n", k);
 
 
 return 0;
