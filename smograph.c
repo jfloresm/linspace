@@ -43,6 +43,20 @@ int zero(int *a,int n){
 }
 
 //////////////////////////////////////////////////////////
+//converts every entry pointed to by a equal to 0
+//////////////////////////////////////////////////////////	
+
+int zeroall(int *a,int n){
+
+	int i;
+	
+	for(i=0; i<n; i++){
+		a[i] = 0;
+	}
+
+	return(0);
+}
+//////////////////////////////////////////////////////////
 //Copies vector a unto vector b
 //////////////////////////////////////////////////////////	
 
@@ -100,8 +114,38 @@ int first2(int *a, int n){
 
 	k = n;
 
-	for(i =0; i<n;i++){
+	for(i =1; i<n;i++){
 		if(a[i] == n+1){
+			k = i;
+			break;
+		}
+	}
+
+	
+	return(k);
+
+}
+
+/*
+int numorbits(int *a,int *b, int n){
+
+	int i,k,j;
+
+	k = 0;
+
+	for(i = 0; i<n; i++){
+		for(j = 0; j<i;j++){
+				
+*/	
+
+int first3(int *a, int n){
+
+	int i,k;
+
+	k = n;
+
+	for(i =1; i<n;i++){
+		if(a[i] == 0){
 			k = i;
 			break;
 		}
@@ -117,7 +161,7 @@ int order(int *a,int n){
 
 	k = 0;
 
-	for(i=1; i< n-1; i++){
+	for(i=0; i< n-1; i++){
 		if(a[i+1] != a[i] +1){
 			k = 1;
 			break;
@@ -222,20 +266,49 @@ int autsize2(double gpsize1, int gpsize2)
     }
 }
 
+int getpoint(long int *a,int n){
+	
+	int i,j,k,l;
 
+	long int x;
+
+	k = n+1;
+               
+	for(j = 0; j<n;j++){
+                            
+		for(i = 63; i >= 0; i--){
+        		x = a[j] >> i;
+        		if(x & 1){
+				l = 63-i;
+                	//	return(63-i);
+				break;
+       			}
+		}
+		
+		if(l <= k){
+			k = l;
+		}
+	}
+
+	return(k);
+
+}
 
 int main(){
-int i,i8,j,j1,k,l,m,n,a,d,e,f,h,f1,e1,d1,c1,c2,flag1,flag2,u,u1,u2,v1,v2,count1,count2,z,z2,gp;
+int i,i8,j,j1,k,l,m,n,a,d,e,f,h,f1,e1,d1,c1,c2,flag1,flag2,u,u1,u2,v1,v2,count1,count2,z,z2,gp,p,q1,q2;
 long int y, bin1, bin2,temp;
 FILE *file;
-
+double half;
 int b[n];
 int q[n];
 int b1[n];
 int b2[n];
 int b3[n];
 int b4[n];
-
+int hold[n];
+int hold2[n];
+int plines[n];
+int norbits[n];
 
 static DEFAULTOPTIONS_GRAPH(options);
 	statsblk stats;
@@ -265,13 +338,13 @@ defaults.  writeautoms=TRUE causes automorphisms to be written.     */
 	//options.writeautoms = TRUE;
 
 	//scanf("%d", &n);		//Number of vertices
-	n=14;
+	n=12;
 	m = SETWORDSNEEDED(n);		//m = ceiling(n/64)
 
 	sleep(.001);
 
 
-	file = fopen("/home/jfloresm/Documents/Research/linspace/graphs/plspace14.txt","r");
+	file = fopen("/home/jfloresm/Documents/Research/linspace/graphs/plspace12.txt","r");
 		//printf("2\n");
 		if(file==NULL){
 			printf("EXIT_FAILURE \n");
@@ -301,6 +374,11 @@ Count number of graphs in each file
 
 	int change[count][2][n*m];	//will contain partitions of bipartite graph
 	
+	int gr[count];
+	int counter[count];
+	int part[n][count];
+	int aut[count];
+
 	rewind(file);
 
 /////////////////////////////////////////////////////////////////////////
@@ -663,7 +741,7 @@ for(i = 0; i < count; i++){
 
 	}
 		//printf("i = %d \n",i);
-		//printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d,b1[4] = %d,b1[5] = %d,b1[6] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d,b2[4] = %d,b2[5] = %d,b2[6] = %d \n", b1[0], b1[1],b1[2], b1[3],b1[4], b1[5],b1[6],b2[0], b2[1],b2[2], b2[3],b2[4], b2[5],b2[6]);
+	//	printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d,b1[4] = %d,b1[5] = %d,b1[6] = %id,b1[7] = %d, b1[8] = %d, b1[9] = %d, b1[10] = %d, b1[11] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d,b2[4] = %d,b2[5] = %d,b2[6] = %d, b2[7] = %d, b2[8] = %d, b2[9] = %d, b2[10] = %d,b2[11] = %d \n", b1[0], b1[1],b1[2], b1[3],b1[4], b1[5],b1[6],b1[7],b1[8],b1[9],b1[10],b1[11],b2[0], b2[1],b2[2], b2[3],b2[4], b2[5],b2[6],b2[7],b2[8],b2[9],b2[10],b2[11]);
 		//printf("\n");
 	
 //printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d \n", b1[0], b1[1],b1[2], b1[3],b2[0], b2[1],b2[2], b2[3]);
@@ -725,16 +803,21 @@ for(i = 0; i < count; i++){
 	printf("\n");
 */	
 ////////////////////////////////////////////////////////////////
-	
+/////////////////////////////////////////////////////////////////////////
+///*
+//Rearranges rows and columns of adj matrix of graph so that points are first, then lines
+//*/
+///////////////////////////////////////////////////////////////////////////
 	for(i = 0;i<count;i++){
 
 		v1 = first2(change[i][0],n);
 		v2 = first2(change[i][1],n);
 
 		order2(change[i][0],v1);
+
+		//printf("%d \n", v1);
 	
 		if(order(change[i][0],v1)==0){
-			//printf("i = %d\n",i);
 			continue;
 		}
 
@@ -783,7 +866,7 @@ for(i = 0; i < count; i++){
 //Print out graphs in smo
 //*/
 ///////////////////////////////////////////////////////////////////////////
-/*
+
 	for(i = 0; i<count; i++){
 		printf("Graph = %d \n", i+1);
 		for(k = 0;k<n;k++){
@@ -807,25 +890,156 @@ for(i = 0; i < count; i++){
 
 	}
         printf("\n");
-*/
-		
+
+
+zeroall(gr,count);
+zeroall(counter,count);
+//zeroall(aut,count);
+for(i = 0;i<n;i++){
+	zeroall(part[i],count);
+}
+
+
+/////////////////////////////////////////////////////////////////////////
+///*
+//Prints out table with cardinalities of automorphism groups
+//*/
+///////////////////////////////////////////////////////////////////////////
+/*	
 for(j = 0; j<count;j++){	
 	
 	densenauty(g2[j],lab,ptn,orbits,&options,&stats,m,n,NULL);
 
-	/*for(i = 0;i<n;i++){
-		printf("%d \n", orbits[i]);
-	}*/	
-
-	//printf("%f %d \n", stats.grpsize1, stats.grpsize2);
-
-
-	autsize(stats.grpsize1,stats.grpsize2);
 	gp = autsize2(stats.grpsize1,stats.grpsize2);
-        printf("j = %d, gp = %d \n",j, gp);
+
+	//printf("gp = %d \n",gp);
+	
+	flag1 = 0;
+
+	for(i = 0; i<count;i++){
+		if(gp == gr[i]){
+			flag1 = 1;
+			break;
+		}
+	}
+
+	if(flag1 == 0){
+		q1 = first3(gr,count);
+		if(q1 != count){
+			gr[q1] = gp;
+			//printf("%d %d \n", gr[q1],q1);
+		}
+	}
+}	
+
+
+	
+	q1 = first3(gr,count);
+
+//	printf("%d \n", q1);
+
+	order2(gr,q1);
+
+	for(j = 0; j<count; j++){
+		densenauty(g2[j],lab,ptn,orbits,&options,&stats,m,n,NULL);
+
+		gp = autsize2(stats.grpsize1,stats.grpsize2);
+
+		q2 = first2(change[j][0],n);
+
+		//q2 = getpoint(g2[j],n);
+
+	//	printf("%d \n", q2);
+
+		for(i = 0; i<q1; i++){
+			if(gp == gr[i]){
+			//	printf("q2 =  %d\n", q2);
+				part[q2][i] +=1;
+				break;
+			}
+		}
+	}
+
+
+	for(i = 1; i<q1-1; i++){
+		printf("%d " ,gr[i]);
+	}
+
 	printf("\n");
+	for(j= 0; j<n; j++){
+		for(i = 1; i<q1; i++){
+			printf("%d ", part[j][i]);
+		}
+		printf("\n");
+	}
+
+
+//        printf("j = %d, gp = %d \n",j, gp);
+//	printf("\n");
 //	writegroupsize(stdout,stats.grpsize1,stats.grpsize2);
-}
+*/
+
+/////////////////////////////////////////////////////////////////////////
+///*
+//If n is even, checks if plane is self dual or not by seeing orbits of the action of automorphism group
+//*/
+///////////////////////////////////////////////////////////////////////////
+
+/*
+f = n/2;
+
+for(j = 0; j<count;j++){	
+
+	q2 = first2(change[j][0],n);
+
+//	printf("%d, %d \n", q2,f);	
+
+	if(q2 == f){
+
+	//	printf("%d \n", q2);
+
+		e = 0;
+
+		//k = 1;
+
+		densenauty(g2[j],lab,ptn,orbits,&options,&stats,m,n,NULL);
+
+		sleep(0.1);
+	
+
+		for(l = 0; l<q2; l++){
+			for(h = q2; h<n; h++){ 	
+		//		printf("%d, %d \n", orbits[l], orbits[h]);	
+				if(orbits[l] == orbits[h]){
+					for(i = 0; i<n; i++){
+						printf("%d ", orbits[i]);
+					}
+
+					printf("\n");
+			
+					//printf(" l = %d, h = %d, j = %d \n",l,h, j);
+					e = 1;
+					break;
+				}
+			}
+
+
+			if(e ==1){
+				break;
+			}
+		}
+		 
+	
+
+	}
+		
+}		
+
+*/	
+
+
+
+
 return 0;
 
 }
