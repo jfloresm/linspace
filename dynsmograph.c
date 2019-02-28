@@ -56,6 +56,21 @@ int zeroall(int *a,int n){
 
 	return(0);
 }
+
+//////////////////////////////////////////////////////////
+//converts every entry pointed to by a equal to 0
+//////////////////////////////////////////////////////////	
+
+int longzeroall(long int *a,int n){
+
+	int i;
+	
+	for(i=0; i<n; i++){
+		a[i] = 0;
+	}
+
+	return(0);
+}
 //////////////////////////////////////////////////////////
 //Copies vector a unto vector b
 //////////////////////////////////////////////////////////	
@@ -420,23 +435,9 @@ Count number of graphs in each file
 	for(i = 0;i<n;i++){
 		part[i] = (int*)malloc(count*sizeof(int));
 	}	
-
-	int *aut = (int *)malloc(count*sizeof(int));		
-
-	graph g1[count][n*m];		// 2 d array. 1st dimension tells you which graph
 	
-								// 2 d array. 1st dimension tells you which graph
-	graph g2[count][n*m];		// 2 d array. 1st dimension tells you which graph
-	graph g3[n*m];
-
-	int c[count][n*m];		//each row is number of 1's in each row of g
-	int t[count][n*m][n];		// each row is the position of 1's in each row of g
-
-	int change[count][2][n*m];	//will contain partitions of bipartite graph
-	
-	int gr[count];
-	int part[n][count];
 */
+
 	rewind(file);
 
 /////////////////////////////////////////////////////////////////////////
@@ -795,16 +796,6 @@ for(i = 0; i < count; i++){
 		e = first(b2,n);
 		d = first(b1,n);
 
-		//printf("f = %d, f1 = %d \n", f, f1);
-
-		//printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d,b1[4] = %d,b1[5] = %d,b1[6] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d,b2[4] = %d,b2[5] = %d,b2[6] = %d \n", b1[0], b1[1],b1[2], b1[3],b1[4], b1[5],b1[6],b2[0], b2[1],b2[2], b2[3],b2[4], b2[5],b2[6]);
-
-	}
-		//printf("i = %d \n",i);
-	//	printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d,b1[4] = %d,b1[5] = %d,b1[6] = %id,b1[7] = %d, b1[8] = %d, b1[9] = %d, b1[10] = %d, b1[11] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d,b2[4] = %d,b2[5] = %d,b2[6] = %d, b2[7] = %d, b2[8] = %d, b2[9] = %d, b2[10] = %d,b2[11] = %d \n", b1[0], b1[1],b1[2], b1[3],b1[4], b1[5],b1[6],b1[7],b1[8],b1[9],b1[10],b1[11],b2[0], b2[1],b2[2], b2[3],b2[4], b2[5],b2[6],b2[7],b2[8],b2[9],b2[10],b2[11]);
-		//printf("\n");
-	
-//printf("b1[0] = %d, b1[1] = %d, b1[2] = %d ; b1[3] = %d; b2[0] = %d, b2[1] = %d, b2[2] = %d, b2[3] = %d \n", b1[0], b1[1],b1[2], b1[3],b2[0], b2[1],b2[2], b2[3]);
 		copy(b1, change[i][0],n);
 		copy(b2, change[i][1],n);
 
@@ -960,10 +951,16 @@ for(i = 0; i < count; i++){
 ////////////////////////////////////////////////////////////////////////////////
 
 
-/*
+/*	int *gr = (int *)malloc(count*sizeof(int));
+
+	int **part = (int **)malloc(n*sizeof(int*));
+	for(i = 0;i<n;i++){
+		part[i] = (int*)malloc(count*sizeof(int));
+	}	
+
+
+
 	zeroall(gr,count);
-//	zeroall(counter,count);
-//	zeroall(aut,count);
 	for(i = 0;i<n;i++){
 		zeroall(part[i],count);
 	}
@@ -1042,14 +1039,10 @@ for(j = 0; j<count;j++){
 		printf("\n");
 	}
 
-	free(gr);
-	free(part);
+	free(gr);				//free gr
+	free(part);				//free part (contains cardinalities of aut groups)
 
 
-
-//      printf("j = %d, gp = %d \n",j, gp);
-//	printf("\n");
-//	writegroupsize(stdout,stats.grpsize1,stats.grpsize2);
 */
 
 
@@ -1111,9 +1104,13 @@ for(j = 0; j<count;j++){
 
 */	
 
-	free(change);
+	free(change);				//free change (contains partition into points and lines)
 
-///////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+///*
+//Reads projective planes in Moorhouse format
+//*/
+///////////////////////////////////////////////////////////////////////////
 
 	file = fopen("/home/jfloresm/Documents/Research/linspace/25s1.txt","r");
 		//printf("2\n");
@@ -1151,7 +1148,7 @@ for(j = 0; j<count;j++){
 			}
 		}
 	}
-
+/*
 	for(i = 0; i < l; i++){
 		for(j = 0; j<j1; j++){
 			printf("%d ", plane[i][j]);
@@ -1159,12 +1156,32 @@ for(j = 0; j<count;j++){
 		printf("\n");
 		printf("\n");
 	}	
-
+*/
 	fclose(file);
 
-	//printf("%d \n", k);
 
+/////////////////////////////////////////////////////////////////////////
+///*
+//Convert projective planes into nauty format
+//*/
+///////////////////////////////////////////////////////////////////////////
 
+/*
+	u = 2*l;
+
+	v = SETWORDSNEEDED(u);
+	
+
+	long int *biplane = (long int*)malloc(u*v*sizeof(long int));
+
+	longzeroall(biplane,u*v);
+
+	for(i = 10*v; i<u*v;i++){
+		
+		
+
+	//free(plane);				//free projective plane
+*/
 return 0;
 
 }
