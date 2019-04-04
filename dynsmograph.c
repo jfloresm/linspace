@@ -799,8 +799,9 @@ for(i = 0; i < count; i++){
 		copy(b1, change[i][0],n);
 		copy(b2, change[i][1],n);
 
-}
+	}
 
+}
 	free(c);
 
 	free(t);
@@ -1176,14 +1177,30 @@ for(j = 0; j<count;j++){
 
 	longzeroall(biplane,u*v);
 
-	for(i = 10*v; i<u*v;i++){
+	for(i = 10*v; i<u*v;i++){}
 		
 		
 
 	//free(plane);				//free projective plane
 */
-return 0;
+
+
+/*
+
+ file = fopen("/home/jfloresm/Documents/Research/linspace/graphs/g61.txt","w");
+                if(file==NULL){
+                            printf("EXIT_FAILURE \n");
+                }
+
+	writeg6(file,g2[0],m,n);
+
+
+fclose(file);
+*/
+	return 0;
+		//printf("\n");
 
 }
+
 
 
