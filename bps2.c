@@ -14,16 +14,12 @@
 
 */
 
-void meet(long int *g, int x, int y, int m){
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Returns the number of points/lines in set
+//
+/////////////////////////////////////////////////////////////////////////////////////
 
-		
-
-}
-
-void join(long int *g, int x, int y, int m){
-
-
-}
 
 int first(int *a, int n){
 
@@ -349,7 +345,11 @@ void invdic(int n, int c,int h1, int h2){
 			
 }
 	
-	
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Returns the point/line at which two lines/points meet/lie
+//
+/////////////////////////////////////////////////////////////////////////////////////
 
 int inter(long int * a, int m, int v1, int v2){
 
@@ -365,11 +365,103 @@ int inter(long int * a, int m, int v1, int v2){
 	return(r);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Prints out adjacency matrix of graph
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+void incprint(long int * a, int m, int n){
+
+	int k,j;
+	long int tempb;
+
+	for(k = 0;k<n*m;k++){
+			for(j = 63; j >= 63-(n-1); j--){
+               			tempb = a[k] >> j;
+
+                		if(tempb & 1){
+                        		printf("1");
+                		}
+
+                		else{		
+                        		printf("0");
+                		}
+       			 }
+
+			printf("\n");		
+
+		}
+
+		printf("\n");
+
+}
+
+////////////////////
+//
+//-l1 is the number of lines currently
+//-lset is set of points
+//-psl is the max number of lines
+//
+////////////////////
+
+
+void meet(int l1, long int * plane, int m,long int * temp,int m2, int * lset, int psl, int * pset, int psp){
+
+	int i,j,k,l,z1;
+
+	for(i = 0; i<l1-1;i++){
+		for(j = i+1; j<l1; j++){
+			l = inter(plane,m, lset[i], lset[j]);
+
+			if(in(pset,l,psp)){
+				z1 = posit(pset,l,psp);
+				ADDONEEDGE(temp,i,psl+z1,m2);
+				ADDONEEDGE(temp,j,psl+z1,m2);
+				
+			}
+
+			else{
+				k = first(pset, psp);
+				pset[k] = l; 
+				ADDONEEDGE(temp,i,psl+k,m2);
+				ADDONEEDGE(temp,j,psl+k,m2);
+			}
+		}
+	}
+
+}
+
+void join(int l2, long int * plane, int m,long int * temp,int m2, int * lset, int psl, int * pset, int psp){
+
+	int i,j,k,l,z1;
+
+	for(i = 0; i< l2 -1; i++){
+		for(j = i+1; j<l2;j++){
+			l = inter(plane,m,pset[i], pset[j]);
+	
+			if(in(lset,l,psl)){
+				z1 = posit(lset,l,psl);
+				ADDONEEDGE(temp,i+psl,z1,m2);
+				ADDONEEDGE(temp,j+psl,z1,m2);
+				
+			}
+
+			else{
+				k = first(lset, psl);
+				lset[k] = l; 
+				ADDONEEDGE(temp,i+psl,k,m2);
+				ADDONEEDGE(temp,j+psl,k,m2);
+			}
+		}
+	} 
+
+}
 
 
 void main(){
 
-int i,j,k,l,m,n,a,b,m1,n1,c1,c2,d1,d2,r,b1,b2,m2,n2,n3,m3,l1,l2,z1,z2,g1,g2;
+int i,j,k,l,m,n,a,b,m1,n1,c1,c2,r,r1,m2,n2,n3,m3,l1,l2,z1,z2;
 	int v1,v2,v3,v4,v5,v6;
 	FILE *file;
 	char* line = NULL;
@@ -382,6 +474,21 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,d1,d2,r,b1,b2,m2,n2,n3,m3,l1,l2,z1,z2,g1,g2;
 	int psl;					//lines in linear space being found
 	int snp;					//starting number of points in configuration
 	int snl;					//starting number of lines in configuration
+	int holder;					//Number of graphs we want to save 	
+	int i1,j1,k1; 					// For looping over algorithm
+	int points;					//number of points in proj plane
+	int num;					//number of meets/joins wanted
+
+	static DEFAULTOPTIONS_GRAPH(options);
+	statsblk stats;
+	size_t k2;
+	int* lab;
+	int* ptn;
+	int* orbits; 
+	options.getcanon = TRUE;
+	//int i1,i2,i3;
+	//unsigned int x;			//Used to test how to read graphs
+
 	
 	//int count;
 	//int points, lines;
@@ -402,28 +509,25 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,d1,d2,r,b1,b2,m2,n2,n3,m3,l1,l2,z1,z2,g1,g2;
 
 	a = 25;			//order of plane
 
-	l = a*a+a+1;		//number of points/lines
+	points = a*a+a+1;		//number of points/lines
 
 	b = a+1;		//number of points on each line (and lines through each point)
 
-	n = 2*l;
+	n = 2*points;
 
 	m = SETWORDSNEEDED(n);
 
-	//printf("m = %d, n = %d, l = %d,a = %d, b = %d \n", m,n,l,a,b);
-
-	int *array = (int *)malloc(l*sizeof(int));					//Read Moorhouse file row by row
+	int *array = (int *)malloc(points*sizeof(int));					//Read Moorhouse file row by row
 
 	long int *plane = (long int *)malloc(m*n*sizeof(long int));			//holds projective plane
 
 	EMPTYGRAPH(plane,m,n);
 
-
-	for(j = 0; j<l; j++){
+	for(j = 0; j< points; j++){
 		for(i = 0; i < b; i++){
                         if(fscanf(file, "%d",&array[i])){
 				//printf("%d %d %d \n", i, array[i],j);
-                                ADDONEEDGE(plane, j, array[i] + l,m);
+                                ADDONEEDGE(plane, j, array[i] + points,m);
 				//ADDONEEDGE(plane, l+array[i], j,m);
                         }
 
@@ -439,24 +543,31 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,d1,d2,r,b1,b2,m2,n2,n3,m3,l1,l2,z1,z2,g1,g2;
 
 /////////////////////////////////////////////////////////////////////////////////////
 //
-// Instaniate values for PLS that will be checked and for constructed graph
+//Make space to store the number of graphs we will save
 //
 /////////////////////////////////////////////////////////////////////////////////////
-/*	
-	n1 = 12;
-	m1 = SETWORDSNEEDED(n1);
 	
-	long int *temp = (long int *)malloc(m1*n1*sizeof(long int));			//for constructed graph	
+	
+	holder = 100000; 
 
-	EMPTYGRAPH(temp,m1,n1);
-*/
+	num = 4;
+
+	long int **graphs = (long int **)malloc(holder*sizeof(long int *));			//for constructed graph	
+
+	int par[holder];									//to store m,n parameters of saved graphs
+
+	long int* test1;									//to test graphs for isomorphism
+	
+	long int* test2;									//to test graphs for isomorphism
+	 									
+
 /////////////////////////////////////////////////////////////////////////////////////
 //
 //Start with a quadrangle (of points) and build configuration from this 
 //-In this case, start with 4 lines (no three collinear) and end up with at most (6 choose 2)+4
 //lines after join and (4 choose 2) points after meet
 /////////////////////////////////////////////////////////////////////////////////////
-
+/*
 	snl = 4;									//# of lines of quadrangle
 	snp = comb(snl,2);								//# of points after meet
 	psl = comb(snp,2)+snl;								//#of lines after meet-join
@@ -465,6 +576,30 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,d1,d2,r,b1,b2,m2,n2,n3,m3,l1,l2,z1,z2,g1,g2;
 	n2 = psp+psl;
 	m2 = SETWORDSNEEDED(n2);
 	
+*/	
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//2 meets and 2 joins memory allocation (NOT IDEAL)
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+	snl = 4;									//# of lines of quadrangle
+	snp = comb(snl,2);								//# of points after meet
+	psp = l;
+	psl = l;
+
+	n2 = psp+psl;
+	m2 = SETWORDSNEEDED(n2);
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Initialize sets
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+
 	long int *temp = (long int *)malloc(m2*n2*sizeof(long int));			//starting configuration	
 				
 	EMPTYGRAPH(temp,m2,n2);
@@ -473,22 +608,35 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,d1,d2,r,b1,b2,m2,n2,n3,m3,l1,l2,z1,z2,g1,g2;
 
 	lset = (int *)malloc(psl*sizeof(int));			// contains lines in graph
 	
+	int * conc = (int *)malloc(4*sizeof(int));		//to check for concurrence when bulding quadrangle
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Loop over algorithm holder number of times
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+k1 = 0;
+
+for(i1 = 0; i1<holder; i1++){
+
 	fill(pset,psp);
 	
 	fill(lset,psl);
 
-	int * conc = (int *)malloc(4*sizeof(int));		//to check for concurrence when bulding quadrangle
-
-//Make sure to choose 4 starting lines no 3 concurrent
+	//Make sure to choose 4 starting lines no 3 concurrent
 
 	c1 = 0;
 
 	for(i = 0; i<4; i++){
 
-		v1 = randint(2*l-1,l);
+		v1 = randint(2*points-1,points);
 
 		while(in(lset,v1,c1)){	
-			v1 = randint(2*l-1,l);						//make sure not to repeat line
+			v1 = randint(2*points-1,points);						//make sure not to repeat line
 		}
 
 		if(i <= 1){
@@ -513,7 +661,7 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,d1,d2,r,b1,b2,m2,n2,n3,m3,l1,l2,z1,z2,g1,g2;
 							
 			while(conc[2] == conc[0] || in(lset,v1,c1)){
 				
-				v1 = randint(2*l-1,l);
+				v1 = randint(2*points-1,points);
 				
 				lset[c1] = v1;
 				
@@ -530,8 +678,7 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,d1,d2,r,b1,b2,m2,n2,n3,m3,l1,l2,z1,z2,g1,g2;
 
 		else if(i == 3){
 
-			lset[c1] = v1;
-							//make sure no 3 lines are concurrent						
+			lset[c1] = v1;				
 
 			for(j = 0; j<3; j++){
 				l = inter(plane,m, lset[j], lset[3]);
@@ -544,6 +691,8 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,d1,d2,r,b1,b2,m2,n2,n3,m3,l1,l2,z1,z2,g1,g2;
 			while(k == -1){
 
 				k = 0; 			
+			
+				v1 = randint(2*points-1,points);
 
 				lset[c1] = v1;
 							//make sure no 3 lines are concurrent						
@@ -560,92 +709,147 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,d1,d2,r,b1,b2,m2,n2,n3,m3,l1,l2,z1,z2,g1,g2;
 		}
 	
 	}
-	
-///////////////////////Meet operation////////////////////////////////////////////////////
-	
-	l1 = first(lset,psl);								// #(lines in lset) - 1
 
-	for(i = 0; i<l1-1;i++){
-		for(j = i+1; j<snl; j++){
-			l = inter(plane,m, lset[i], lset[j]);
+	//printf(" %d %d %d %d \n", lset[0], lset[1], lset[2], lset[3]);
 
-			if(in(pset,l,psp)){
-				z1 = posit(pset,l,psp);
-				ADDONEEDGE(temp,i,psl+z1,m2);
-				ADDONEEDGE(temp,j,psl+z1,m2);
-				
-			}
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Do meet followed by join operation num times.
+//
+/////////////////////////////////////////////////////////////////////////////////////
 
-			else{
-				k = first(pset, psp);
-				pset[k] = l; 
-				ADDONEEDGE(temp,i,psl+k,m2);
-				ADDONEEDGE(temp,j,psl+k,m2);
-			}
-		}
+	for(i = 0; i<num;i++){
+		l1 = first(lset,psl);
+
+		meet(l1, plane, m,temp,m2, lset, psl, pset, psp);								
+
+		l2 = first(pset,psp);
+
+		join(l2, plane, m,temp,m2, lset, psl, pset, psp);	
 	}
 
-/////////////////////////////join operation//////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Create a new graph with correct number of vertices
+//
+/////////////////////////////////////////////////////////////////////////////////////
 
-	l2 = first(pset,psp);
+	r = first(lset,psl);
 
-	for(i = 0; i< l2 -1; i++){
-		for(j = i+1; j<l2;j++){
-			l = inter(plane,m,pset[i], pset[j]);
-	
-			if(in(lset,l,psl)){
-				z1 = posit(lset,l,psl);
-				ADDONEEDGE(temp,i+psl,z1,m2);
-				ADDONEEDGE(temp,j+psl,z1,m2);
-				
-			}
+	r1 = first(pset,psp);
 
-			else{
-				k = first(lset, psl);
-				lset[k] = l; 
-				ADDONEEDGE(temp,i+psl,k,m2);
-				ADDONEEDGE(temp,j+psl,k,m2);
-			}
-		}
+	n3 = r+r1;
+
+	m3 = SETWORDSNEEDED(n3);
+
+	long int *temp2 = (long int *)malloc(m3*n3*sizeof(long int));
+
+	EMPTYGRAPH(temp2,m3,n3);
+
+	k = 0;
+
+	for(j = 0 ; j<m2*r; j+= m2){
+		for(i = -1;(i = nextelement(temp+j,m2,i)) >=0;){	
+			l = i - psl;
+			ADDONEEDGE(temp2, k, l+r,m3);					
+		}		
+
+		k+=1;
 	}
 
-////////////////////////////////////////////////////////////////////////////////////
+	//printf("%d %d \n", r1,r);
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Allocate memory for nauty
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+	lab = (int *)malloc(n3*sizeof(int));
+
+	ptn = (int *)malloc(n3*sizeof(int));
+
+	orbits = (int *)malloc(n3*sizeof(int));			
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Create a new graph with correct number of vertices
+//
+/////////////////////////////////////////////////////////////////////////////////////
 
 
-/*
-for(i = 0; i< psp; i++){
-	printf("%d ", pset[i]);
-}
 
-printf("\n");
+	if(k1 == 0){
+		graphs[k1] = (long int *)malloc(m3*n3*sizeof(long int));
+		
+		for(i = 0; i<m3*n3;i++){
+			graphs[k1][i] = temp2[i];
+		}
+		
+		par[k1] = n3;
+		
+		k1+=1;
+	}
 
-for(j = 0; j< psl; j++){
-	printf("%d ", lset[j]);
-}
+	test1 = (long int *)malloc(n3*m3*sizeof(long int));					//for canonical labels of graphs
+	
+	test2 = (long int *)malloc(n3*m3*sizeof(long int));					//for canonical labels of graphs
+	
+	for(i = 0; i<k1; i++){
 
-printf("\n");
-*/
+		if(par[i] == n3){	
 
+		//	printf("i = %d \n", i);
 
-	for(k = 0;k<n2*m2;k++){
-			for(j = 63; j >= 63-(n2-1); j--){
-               			tempb = temp[k] >> j;
+			densenauty(graphs[i],lab,ptn,orbits,&options,&stats,m3,n3,test1);
 
-                		if(tempb & 1){
-                        		printf("1");
-                		}
+			densenauty(temp2,lab,ptn,orbits,&options,&stats,m3,n3,test2);
 
-                		else{		
-                        		printf("0");
-                		}
-       			 }
+		//	incprint(temp2, m3,n3);
 
-			printf("\n");		
+		//	incprint(graphs[i], m3,n3);
+			
+			for(j = 0; j<m3*(size_t)n3; j++){
+
+				if(test1[j] != test2[j]){
+					break;
+				}
+			}
+
+			if(j != m3*(size_t)n3){
+								
+				for(k = 0; k< n3*m3; k++){
+					graphs[k1][k] = temp2[k];
+				}
+			
+				par[k1] = n3;
+
+				k1+=1;
+
+				break;
+			}
 
 		}
 
-		printf("\n");
+
+		else{
+			continue;
+		}
+
+	}
+
+	free(lab);
+	free(orbits);
+	free(ptn);
+	free(test1);
+	free(test2);
+	free(temp2);			
+		
+}	
+
+	printf("%d = k1 \n", k1);		
+
+	free(temp);
 
 }
-
 
