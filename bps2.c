@@ -1,8 +1,11 @@
 #include "nauty.h"
 #include <unistd.h>
 #include <stdlib.h> 
-
+#include <time.h>
 /*
+
+PREFACE: Enumerates number of non-isomorphic (up to duality) linear spaces embedded in a projective plane starting from a random construction
+followed by operations of meet and join always ending in join.
 
 1. Need fix so that if two points(lines) intersect in a line(point) already in the set, that combination is not used again
 (as of now it just searches two new points(lines) at random.
@@ -13,6 +16,8 @@
 
 
 */
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 //
@@ -399,6 +404,8 @@ void incprint(long int * a, int m, int n){
 
 ////////////////////
 //
+//MEET OPERATION FOR STARTING WITH LINES
+//
 //-l1 is the number of lines currently
 //-lset is set of points
 //-psl is the max number of lines
@@ -406,7 +413,7 @@ void incprint(long int * a, int m, int n){
 ////////////////////
 
 
-void meet(int l1, long int * plane, int m,long int * temp,int m2, int * lset, int psl, int * pset, int psp){
+void lmeet(int l1, long int * plane, int m,long int * temp,int m2, int * lset, int psl, int * pset, int psp){
 
 	int i,j,k,l,z1;
 
@@ -432,7 +439,17 @@ void meet(int l1, long int * plane, int m,long int * temp,int m2, int * lset, in
 
 }
 
-void join(int l2, long int * plane, int m,long int * temp,int m2, int * lset, int psl, int * pset, int psp){
+////////////////////
+//
+//JOIN OPERATION FOR STARTING WITH LINES
+//
+//-l1 is the number of lines currently
+//-lset is set of points
+//-psl is the max number of lines
+//
+////////////////////
+
+void ljoin(int l2, long int * plane, int m,long int * temp,int m2, int * lset, int psl, int * pset, int psp){
 
 	int i,j,k,l,z1;
 
@@ -458,16 +475,166 @@ void join(int l2, long int * plane, int m,long int * temp,int m2, int * lset, in
 
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Meet operation for starting with points
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+
+void pmeet(int l1, long int * plane, int m,long int * temp,int m2, int * lset, int psl, int * pset, int psp){
+
+	int i,j,k,l,z1;
+
+	for(i = 0; i<l1-1;i++){
+		for(j = i+1; j<l1; j++){
+			l = inter(plane,m, lset[i], lset[j]);
+
+			if(in(pset,l,psp)){
+				z1 = posit(pset,l,psp);
+				ADDONEEDGE(temp,i+psl,z1,m2);
+				ADDONEEDGE(temp,j+psl,z1,m2);
+				
+			}
+
+			else{
+				k = first(pset, psp);
+				pset[k] = l; 
+				ADDONEEDGE(temp,i+psl,k,m2);
+				ADDONEEDGE(temp,j+psl,k,m2);
+			}
+		}
+	}
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Join operation for starting with points
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+void pjoin(int l2, long int * plane, int m,long int * temp,int m2, int * lset, int psl, int * pset, int psp){
+
+	int i,j,k,l,z1;
+
+	for(i = 0; i< l2 -1; i++){
+		for(j = i+1; j<l2;j++){
+			l = inter(plane,m,pset[i], pset[j]);
+	
+			if(in(lset,l,psl)){
+				z1 = posit(lset,l,psl);
+				ADDONEEDGE(temp,i,z1+psl,m2);
+				ADDONEEDGE(temp,j,z1+psl,m2);
+				
+			}
+
+			else{
+				k = first(lset, psl);
+				lset[k] = l; 
+				ADDONEEDGE(temp,i,k+psl,m2);
+				ADDONEEDGE(temp,j,k+psl,m2);
+			}
+		}
+	} 
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Returns cardinality of automorphism group of PLS
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+int autsize2(double gpsize1, int gpsize2)
+{
+    int c,b,a,i;
+
+    a = 1;
+
+    if(gpsize2 == 0){
+    	b = gpsize1+0.1;
+	return(b);
+	}
+    else{
+	for(i = 0; i<gpsize2; i++){
+		a*= 10;	
+	}
+	
+	b= gpsize1+0.1;
+
+	c = b+a;
+
+	return(c);
+	
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//Find number of points and lines 
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+int findpoints(long int *ng, int n1){ 
+
+	int i,j,k,points,lines,m1;
+
+	int point[n1];
+
+	long int* ng2;
+
+	m1 = SETWORDSNEEDED(n1);
+
+	ng2 = (long int*)malloc(m1*n1*sizeof(long int));
+
+	for(i = 0; i < m1*n1; i++){
+		ng2[i] = ng[i];
+	}
+
+	zero(point, m1*n1);
+
+
+	for(j = 0; j <m1*n1; j++){
+		TAKEBIT(point[j], ng2[j]);
+		}
+	
+	k = 0;
+
+	for(i = 0; i < n1; i++){
+	
+		for( j =0; j < i+1; j++){	
+		
+			if(point[j] <= i){
+
+				points = i;
+				lines  = n1 - i;
+				k = 1;
+				break;
+
+			}
+		}
+
+		if(k == 1){
+			break;
+		}
+
+	}
+
+	free(ng2);
+
+	return(points);
+}
 
 void main(){
 
-int i,j,k,l,m,n,a,b,m1,n1,c1,c2,r,r1,m2,n2,n3,m3,l1,l2,z1,z2;
-	int v1,v2,v3,v4,v5,v6;
+int i,j,k,l,m,n,a,b,m1,n1,c1,r,r1,m2,n2,n3,m3,l1,l2,z1;
+	int v1;
 	FILE *file;
 	char* line = NULL;
 	size_t len = 0;
 	ssize_t read;
-	long int tempb;
+	long int tempb;					//for bit computations
 	int *lset;					//to hold lines in configuration
 	int *pset;					//to hold points in configuration
 	int psp;					//points in linear space being found
@@ -478,23 +645,24 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,r,r1,m2,n2,n3,m3,l1,l2,z1,z2;
 	int i1,j1,k1; 					// For looping over algorithm
 	int points;					//number of points in proj plane
 	int num;					//number of meets/joins wanted
+	int dif;					//to check if a graph has distinct number of vertices compared to list
 
-	static DEFAULTOPTIONS_GRAPH(options);
+	static DEFAULTOPTIONS_GRAPH(options);		//nauty variables
 	statsblk stats;
 	size_t k2;
 	int* lab;
 	int* ptn;
-	int* orbits; 
-	options.getcanon = TRUE;
-	//int i1,i2,i3;
-	//unsigned int x;			//Used to test how to read graphs
+	int* orbits;
 
+	lab = (int *)malloc(1*sizeof(int)); 
+	ptn = (int *)malloc(1*sizeof(int));
+	orbits = (int *)malloc(1*sizeof(int));  
 	
-	//int count;
-	//int points, lines;
-	//int sol[n1];
-	//int stack[n1];
-	//int ts,ch;
+	clock_t time;				//for timing code
+	double time_taken;
+	
+	options.getcanon = TRUE;			//get canonical labeling of graph
+
 	
 /////////////////////////////////////////////////////////////////////////////////////
 //
@@ -526,9 +694,7 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,r,r1,m2,n2,n3,m3,l1,l2,z1,z2;
 	for(j = 0; j< points; j++){
 		for(i = 0; i < b; i++){
                         if(fscanf(file, "%d",&array[i])){
-				//printf("%d %d %d \n", i, array[i],j);
                                 ADDONEEDGE(plane, j, array[i] + points,m);
-				//ADDONEEDGE(plane, l+array[i], j,m);
                         }
 
 			else{
@@ -548,18 +714,34 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,r,r1,m2,n2,n3,m3,l1,l2,z1,z2;
 /////////////////////////////////////////////////////////////////////////////////////
 	
 	
-	holder = 100000; 
+	holder = 1000; 
 
-	num = 4;
+	num = 3;
 
 	long int **graphs = (long int **)malloc(holder*sizeof(long int *));			//for constructed graph	
 
-	int par[holder];									//to store m,n parameters of saved graphs
+//	int *counter = (int *)malloc(1*sizeof(int));						//to hold number of times a graph occurs
+
+//	int *aut = (int *)malloc(1*sizeof(int));						//to hold cardinality of automorphism group
+
+	int sol=20;										//max number of nonisomorphic PS
+
+	int counter[sol];
+	
+	zero(counter,sol);
+
+	int aut[sol];
+
+	int par[sol];										//to store m,n parameters of saved graphs
 
 	long int* test1;									//to test graphs for isomorphism
 	
 	long int* test2;									//to test graphs for isomorphism
-	 									
+	
+	test1 = (long int *)malloc(1*sizeof(long int));
+	
+	test2 = (long int *)malloc(1*sizeof(long int));
+ 									
 
 /////////////////////////////////////////////////////////////////////////////////////
 //
@@ -583,10 +765,12 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,r,r1,m2,n2,n3,m3,l1,l2,z1,z2;
 //
 /////////////////////////////////////////////////////////////////////////////////////
 
-	snl = 4;									//# of lines of quadrangle
-	snp = comb(snl,2);								//# of points after meet
-	psp = l;
-	psl = l;
+	//snl = 4;									//# of lines starting of quadrangle
+	//snp = comb(snl,2);								//# of points after meet
+	//Don't need these since I'm starting with max number of poitns and lines for space
+
+	psp = points;									//max number of points
+	psl = points;									//max number of lines
 
 	n2 = psp+psl;
 	m2 = SETWORDSNEEDED(n2);
@@ -610,6 +794,9 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,r,r1,m2,n2,n3,m3,l1,l2,z1,z2;
 	
 	int * conc = (int *)malloc(4*sizeof(int));		//to check for concurrence when bulding quadrangle
 
+	long int *temp2 =(long int *)malloc(1*sizeof(long int));//to store graph of correct size
+
+	long int*dummy;						//for first loop usage of autsize
 
 
 
@@ -621,7 +808,9 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,c2,r,r1,m2,n2,n3,m3,l1,l2,z1,z2;
 
 k1 = 0;
 
-for(i1 = 0; i1<holder; i1++){
+time = clock();
+
+for(i1 = 0; i1<holder; i1++){	
 
 	fill(pset,psp);
 	
@@ -631,44 +820,51 @@ for(i1 = 0; i1<holder; i1++){
 
 	c1 = 0;
 
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//To start with quadrangle of points
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+/*
 	for(i = 0; i<4; i++){
 
-		v1 = randint(2*points-1,points);
+		v1 = randint(points-1,0);
 
-		while(in(lset,v1,c1)){	
-			v1 = randint(2*points-1,points);						//make sure not to repeat line
+		while(in(pset,v1,c1)){	
+			v1 = randint(points-1,0);						//make sure not to repeat line
 		}
 
 		if(i <= 1){
 		
-			lset[c1] = v1;
+			pset[c1] = v1;
 
 			c1+= 1;								//first line
 		}
 
 		else if(i==2){		
 
-			lset[c1] = v1;
+			pset[c1] = v1;
 							//make sure no 3 lines are concurrent							
-			conc[0] = inter(plane,m,lset[0],lset[1]);
+			conc[0] = inter(plane,m,pset[0],pset[1]);
 
 			k = 1;
 
 			for(j = 0; j<2; j++){
-				conc[k] = inter(plane,m, lset[j], lset[2]);
+				conc[k] = inter(plane,m, pset[j], pset[2]);
 				k+=1;
 			}
 							
-			while(conc[2] == conc[0] || in(lset,v1,c1)){
+			while(conc[2] == conc[0] || in(pset,v1,c1)){
 				
-				v1 = randint(2*points-1,points);
+				v1 = randint(points-1,0);
 				
-				lset[c1] = v1;
+				pset[c1] = v1;
 				
 				k = 1;
 
 				for(j = 0; j<2; j++){
-					conc[k] = inter(plane,m, lset[j], lset[2]);
+					conc[k] = inter(plane,m, pset[j], pset[2]);
 					k+=1;
 				}						
 			}
@@ -678,10 +874,10 @@ for(i1 = 0; i1<holder; i1++){
 
 		else if(i == 3){
 
-			lset[c1] = v1;				
+			pset[c1] = v1;				
 
 			for(j = 0; j<3; j++){
-				l = inter(plane,m, lset[j], lset[3]);
+				l = inter(plane,m, pset[j], pset[3]);
 					if(l == conc[0] || l == conc[1] || l == conc[2]){
 						k = -1;
 						break;
@@ -692,13 +888,13 @@ for(i1 = 0; i1<holder; i1++){
 
 				k = 0; 			
 			
-				v1 = randint(2*points-1,points);
+				v1 = randint(points-1,0);
 
-				lset[c1] = v1;
+				pset[c1] = v1;
 							//make sure no 3 lines are concurrent						
 
 				for(j = 0; j<3; j++){
-					l = inter(plane,m, lset[j], lset[3]);
+					l = inter(plane,m, pset[j], pset[3]);
 						if(l == conc[0] || l == conc[1] || l == conc[2]){
 							k = -1;
 							break;
@@ -709,24 +905,99 @@ for(i1 = 0; i1<holder; i1++){
 		}
 	
 	}
+	
 
-	//printf(" %d %d %d %d \n", lset[0], lset[1], lset[2], lset[3]);
+*/
+///////////////////////////////////////4 RANDOM LINES/////////////////////////////////////////////
+
+	v1 = randint(2*points-1,points);
+
+	lset[c1] = v1;
+	
+	c1+=1;
+
+	for(i = 1; i<4; i++){
+
+		v1 = randint(2*points-1,points);
+
+		while(in(lset,v1,c1)){	
+			v1 = randint(2*points-1,points);						//make sure not to repeat line
+		}
+
+		lset[c1] = v1;
+
+		c1+=1;
+	}
+	
+	//printf("%d %d %d %d \n", lset[0],lset[1],lset[2],lset[3]);
+
+///////////////////////////////////////4 RANDOM POINTS/////////////////////////////////////////////
+/*
+	v1 = randint(points-1,0);
+
+	pset[c1] = v1;
+	
+	c1+=1;
+
+	for(i = 1; i<4; i++){
+
+		v1 = randint(points-1,0);
+
+		while(in(pset,v1,c1)){	
+			v1 = randint(points-1,0);						//make sure not to repeat line
+		}
+
+		pset[c1] = v1;
+
+		c1+=1;
+	}
+	
+	//printf("%d %d %d %d \n", lset[0],lset[1],lset[2],lset[3]);
+
+*/
 
 /////////////////////////////////////////////////////////////////////////////////////
 //
 //Do meet followed by join operation num times.
 //
 /////////////////////////////////////////////////////////////////////////////////////
+/*
+	EMPTYGRAPH(temp,m2,n2);
 
 	for(i = 0; i<num;i++){
 		l1 = first(lset,psl);
 
-		meet(l1, plane, m,temp,m2, lset, psl, pset, psp);								
+		lmeet(l1, plane, m,temp,m2, lset, psl, pset, psp);								
 
 		l2 = first(pset,psp);
 
-		join(l2, plane, m,temp,m2, lset, psl, pset, psp);	
+		ljoin(l2, plane, m,temp,m2, lset, psl, pset, psp);	
 	}
+*/
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Do meet followed by join operation num times. (for points)
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+	EMPTYGRAPH(temp,m2,n2);
+
+	for(i = 0; i<num;i++){
+		
+		l2 = first(pset,psp);
+
+		pjoin(l2, plane, m,temp,m2, lset, psl, pset, psp);
+	
+		l1 = first(lset,psl);
+
+		pmeet(l1, plane, m,temp,m2, lset, psl, pset, psp);								
+
+		l2 = first(pset,psp);
+
+		pjoin(l2, plane, m,temp,m2, lset, psl, pset, psp);	
+	}
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 //
@@ -734,21 +1005,30 @@ for(i1 = 0; i1<holder; i1++){
 //
 /////////////////////////////////////////////////////////////////////////////////////
 
-	r = first(lset,psl);
+	/*r = first(lset,psl);
 
-	r1 = first(pset,psp);
+	r1 = first(pset,psp);*/ //FOR LINES
+
+	r = first(pset,psp);
+
+	r1 = first(lset,psl);	//FOR POINTS	
 
 	n3 = r+r1;
 
 	m3 = SETWORDSNEEDED(n3);
 
-	long int *temp2 = (long int *)malloc(m3*n3*sizeof(long int));
+		
+	temp2= (long int *)realloc(temp2,m3*n3*sizeof(long int));
+
+	if(temp2 == NULL){
+		printf("failed to allocate memory for temp2, i1 = %d \n", i1);
+	}
 
 	EMPTYGRAPH(temp2,m3,n3);
 
 	k = 0;
 
-	for(j = 0 ; j<m2*r; j+= m2){
+	for(j = 0 ; j<m2*r; j+= m2){							//m2 is how many set words per vertex, r is the number of vertices
 		for(i = -1;(i = nextelement(temp+j,m2,i)) >=0;){	
 			l = i - psl;
 			ADDONEEDGE(temp2, k, l+r,m3);					
@@ -757,19 +1037,19 @@ for(i1 = 0; i1<holder; i1++){
 		k+=1;
 	}
 
-	//printf("%d %d \n", r1,r);
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 //
 //Allocate memory for nauty
 //
 /////////////////////////////////////////////////////////////////////////////////////
+	
+	lab = (int *)realloc(lab,n3*sizeof(int));
 
-	lab = (int *)malloc(n3*sizeof(int));
+	ptn = (int *)realloc(ptn,n3*sizeof(int));
 
-	ptn = (int *)malloc(n3*sizeof(int));
-
-	orbits = (int *)malloc(n3*sizeof(int));			
+	orbits = (int *)realloc(orbits,n3*sizeof(int));			
 
 /////////////////////////////////////////////////////////////////////////////////////
 //
@@ -777,37 +1057,56 @@ for(i1 = 0; i1<holder; i1++){
 //
 /////////////////////////////////////////////////////////////////////////////////////
 
-
-
 	if(k1 == 0){
+
 		graphs[k1] = (long int *)malloc(m3*n3*sizeof(long int));
-		
+
+		dummy = (long int *)malloc(m3*n3*sizeof(long int));
+	
 		for(i = 0; i<m3*n3;i++){
 			graphs[k1][i] = temp2[i];
 		}
+
+		densenauty(graphs[k1],lab,ptn,orbits,&options,&stats,m3,n3,dummy);
+
+		aut[k1]= autsize2(stats.grpsize1,stats.grpsize2);
 		
 		par[k1] = n3;
 		
+		counter[k1]+=1;
+		
 		k1+=1;
+
+		continue;
 	}
 
-	test1 = (long int *)malloc(n3*m3*sizeof(long int));					//for canonical labels of graphs
-	
-	test2 = (long int *)malloc(n3*m3*sizeof(long int));					//for canonical labels of graphs
-	
+	test1 = (long int *)realloc(test1,(m3*n3)*sizeof(long int));					//for canonical labels of graphs
+
+	if(test1 == NULL){
+		printf("failed to allocate memory for test1, i1 = %d \n", i1);
+	}
+ 	
+	test2 = (long int *)realloc(test2,(m3*n3)*sizeof(long int));					//for canonical labels of graphs
+		
+	if(test2 == NULL){
+		printf("failed to allocate memory for test2, i1 = %d \n", i1);
+	}
+
+	EMPTYGRAPH(test1,m3,n3);
+
+	EMPTYGRAPH(test2,m3,n3);
+
+	dif = 0;
+
 	for(i = 0; i<k1; i++){
+	
+		if(par[i] == n3){								//if same number of vertices, check for isomorphism
+				
+			dif += 1;
 
-		if(par[i] == n3){	
-
-		//	printf("i = %d \n", i);
-
-			densenauty(graphs[i],lab,ptn,orbits,&options,&stats,m3,n3,test1);
+			densenauty(graphs[i],lab,ptn,orbits,&options,&stats,m3,n3,test1);		
 
 			densenauty(temp2,lab,ptn,orbits,&options,&stats,m3,n3,test2);
-
-		//	incprint(temp2, m3,n3);
-
-		//	incprint(graphs[i], m3,n3);
 			
 			for(j = 0; j<m3*(size_t)n3; j++){
 
@@ -817,10 +1116,18 @@ for(i1 = 0; i1<holder; i1++){
 			}
 
 			if(j != m3*(size_t)n3){
+
+				graphs[k1] = (long int *)malloc(m3*n3*sizeof(long int));
 								
 				for(k = 0; k< n3*m3; k++){
 					graphs[k1][k] = temp2[k];
 				}
+
+				densenauty(temp2,lab,ptn,orbits,&options,&stats,m3,n3,test2);
+	
+				aut[k1]= autsize2(stats.grpsize1,stats.grpsize2);
+
+				counter[k1]+=1;
 			
 				par[k1] = n3;
 
@@ -829,27 +1136,84 @@ for(i1 = 0; i1<holder; i1++){
 				break;
 			}
 
+			else{
+
+				counter[i]+=1;
+
+			}
+
+
 		}
 
+		if((i == (k1-1)) && (dif == 0)){						//if new number of vertices, add graph
+					
+			graphs[k1] = (long int *)malloc(m3*n3*sizeof(long int));
+								
+			for(k = 0; k< n3*m3; k++){
+				graphs[k1][k] = temp2[k];
+			}
 
-		else{
-			continue;
+			densenauty(temp2,lab,ptn,orbits,&options,&stats,m3,n3,test2);
+
+			aut[k1]= autsize2(stats.grpsize1,stats.grpsize2);
+
+			counter[k1]+=1;
+		
+			par[k1] = n3;
+
+			k1+=1;
 		}
-
 	}
 
+	
+}	
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//For finding number of points, lines
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+	int numpoints[k1];
+
+	int numlines[k1];
+
+	for(i = 0; i<k1; i++){
+		numpoints[i] = findpoints(graphs[i], par[i]);
+		numlines[i] = par[i] - numpoints[i];
+	}
+
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//For printing relevant information
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+	printf("\n");
+
+	for(i = 0; i<k1;i++){
+
+		printf("#p = %d, #l = %d, counter[%d] = %d, aut[%d] = %d \n",numpoints[i],numlines[i],i,counter[i],i, aut[i]);
+	
+//		incprint(graphs[i],1, par[i]);
+	
+		printf("\n");
+	}
+
+	time = clock() - time;
+
+	time_taken = ((double)time)/CLOCKS_PER_SEC;	
+
+	printf("time = %f \n", time_taken);
+//////////////////////////////////////////////////////////////////////////////////////// 		
+/*
+	free(temp);
 	free(lab);
-	free(orbits);
 	free(ptn);
 	free(test1);
 	free(test2);
-	free(temp2);			
-		
-}	
-
-	printf("%d = k1 \n", k1);		
-
 	free(temp);
-
+	free(temp2);
+*/
 }
 
