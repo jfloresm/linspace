@@ -4,6 +4,15 @@
 //#include <stdio.h>
 #include <unistd.h>
 
+/*
+
+PREFACE: ENUMERATES all partial linear spaces (up to isomorphism and duality) up to a given number of points and lines.
+Also prints out the corresponding incidence matrices. 
+For the case where #points != #lines, prints out cardinality of aut group.
+Finds whether a PLS is self dual or not.
+
+*/
+
 //////////////////////////////////////////////////////////
 //If b is pointed to by a return 0, else return 1
 //////////////////////////////////////////////////////////
@@ -921,6 +930,37 @@ for(i = 0; i < count; i++){
 
 /////////////////////////////////////////////////////////////////////////
 ///*
+//Write graphs in smo format to disk
+//*/
+///////////////////////////////////////////////////////////////////////////
+
+	/*file = fopen("/run/media/jfloresm/TOSHIBA EXT/p12.txt","a");		//to save in external hard drive
+		//printf("2\n");
+		if(file==NULL){
+			printf("EXIT_FAILURE \n");
+		}*/ 
+
+	file = fopen("/home/jfloresm/Documents/Research/linspace/p12.txt","a");
+		//printf("2\n");
+		if(file==NULL){
+			printf("EXIT_FAILURE \n");
+		}
+
+	for(i = 0;i<count;i++){
+	
+	densenauty(g2[i],lab,ptn,orbits,&options,&stats,m,n,NULL);
+
+	writeg6(file, g2[i],m,n);
+
+	}
+
+	fclose(file);
+	
+
+
+
+/////////////////////////////////////////////////////////////////////////
+///*
 //Print out graphs in smo
 //*/
 ///////////////////////////////////////////////////////////////////////////
@@ -949,7 +989,13 @@ for(i = 0; i < count; i++){
 	}
         printf("\n");
 */
-////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////
+///*
+//Initialize some variables
+//*/
+///////////////////////////////////////////////////////////////////////////
 
 
 /*	int *gr = (int *)malloc(count*sizeof(int));
@@ -1107,98 +1153,8 @@ for(j = 0; j<count;j++){
 
 	free(change);				//free change (contains partition into points and lines)
 
-/////////////////////////////////////////////////////////////////////////
-///*
-//Reads projective planes in Moorhouse format
-//*/
-///////////////////////////////////////////////////////////////////////////
-
-	file = fopen("/home/jfloresm/Documents/Research/linspace/25s1.txt","r");
-		//printf("2\n");
-		if(file==NULL){
-			printf("EXIT_FAILURE \n");
-		}
-
-
-	k = 0;
-
-	while((read = getline(&line, &len, file)) != -1){
-		k+=1;
-	}
-
-	a = 25; //order of plane
-
-	l = a*a+a+1; //number of points
-
-	j1 = a+1; // number of lines through any point
-
-	int** plane = (int**)malloc(l*sizeof(int*));
-
-	for(i = 0; i<l;i++){
-		plane[i] = (int*)malloc(j1*sizeof(int));
-	}
-
-	rewind(file);
-
-	d = 0;
-
-	for(i = 0; i < l; i++){
-		for(j = 0; j<j1; j++){
-			if(!fscanf(file, "%d",&plane[i][j])){
-				break;
-			}
-		}
-	}
-/*
-	for(i = 0; i < l; i++){
-		for(j = 0; j<j1; j++){
-			printf("%d ", plane[i][j]);
-		}
-		printf("\n");
-		printf("\n");
-	}	
-*/
-	fclose(file);
-
-
-/////////////////////////////////////////////////////////////////////////
-///*
-//Convert projective planes into nauty format
-//*/
-///////////////////////////////////////////////////////////////////////////
-
-/*
-	u = 2*l;
-
-	v = SETWORDSNEEDED(u);
-	
-
-	long int *biplane = (long int*)malloc(u*v*sizeof(long int));
-
-	longzeroall(biplane,u*v);
-
-	for(i = 10*v; i<u*v;i++){}
-		
-		
-
-	//free(plane);				//free projective plane
-*/
-
-
-/*
-
- file = fopen("/home/jfloresm/Documents/Research/linspace/graphs/g61.txt","w");
-                if(file==NULL){
-                            printf("EXIT_FAILURE \n");
-                }
-
-	writeg6(file,g2[0],m,n);
-
-
-fclose(file);
-*/
 	return 0;
-		//printf("\n");
+
 
 }
 
