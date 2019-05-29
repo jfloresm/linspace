@@ -11,11 +11,6 @@ followed by operations of meet and join always ending in join.
 1. Need fix so that if two points(lines) intersect in a line(point) already in the set, that combination is not used again
 (as of now it just searches two new points(lines) at random.
 
-
-
-
-
-
 */
 
 
@@ -24,6 +19,22 @@ void main(){
 int i,j,k,l,m,n,a,b,m1,n1,c1,r,r1,m2,n2,n3,m3,l1,l2,z1,pl1,pl2,pl11,pl22,k3;
 	int v1;
 	FILE *file;
+	FILE *file2;
+	FILE *file3;
+
+	char buffer[200];
+	char buffer2[200];
+	char buffer3[200];
+	
+	char loc[20];					//Name of file with projective plane
+
+	printf("Enter the name of the file \n");
+	gets(loc);
+
+	snprintf(buffer, sizeof(buffer), "/home/jfloresm/Documents/Research/linspace/planes/%s.txt", loc);
+	snprintf(buffer2, sizeof(buffer2), "/home/jfloresm/Documents/Research/linspace/planes/%sg6.txt", loc);
+	snprintf(buffer3, sizeof(buffer3), "/home/jfloresm/Documents/Research/linspace/planes/%sinf.txt", loc);
+
 	char* line = NULL;
 	size_t len = 0;
 	ssize_t read;
@@ -40,6 +51,10 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,r,r1,m2,n2,n3,m3,l1,l2,z1,pl1,pl2,pl11,pl22,k3;
 	int num;					//number of meets/joins wanted
 	int dif;					//to check if a graph has distinct number of vertices compared to list
 
+	int write2;					//Make 1 to write graphs in g6 format to disk
+	int write3;					//Make 1 to write graph info to disk
+	int write4;					//Make 1 to write print out graphs
+
 	static DEFAULTOPTIONS_GRAPH(options);		//nauty variables
 	statsblk stats;
 	size_t k2;
@@ -51,7 +66,7 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,r,r1,m2,n2,n3,m3,l1,l2,z1,pl1,pl2,pl11,pl22,k3;
 	ptn = (int *)malloc(1*sizeof(int));
 	orbits = (int *)malloc(1*sizeof(int));  
 	
-	clock_t time;				//for timing code
+	clock_t time;					//for timing code
 	double time_taken;
 	
 	options.getcanon = TRUE;			//get canonical labeling of graph
@@ -62,13 +77,29 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,r,r1,m2,n2,n3,m3,l1,l2,z1,pl1,pl2,pl11,pl22,k3;
 //Read projective planes in Moorhouse format and store it in nauty format in plane
 //
 /////////////////////////////////////////////////////////////////////////////////////	
+	
+	printf("Enter 1 to write files to disk (0 otherwise) \n");
+	scanf("%d", &write2);
 
-	file = fopen("/home/jfloresm/Documents/Research/linspace/planes/25h1.txt", "r");	
+	printf("Enter 1 to write graph info to disk (0 otherwise) \n");
+	scanf("%d", &write3);
+
+	printf("Enter 1 to print out graphs (0 otherwise) \n");
+	scanf("%d", &write4);
+
+	file = fopen(buffer, "r");	
 	if(file == NULL){
 		printf("EXIT_FAILURE \n");
 	}
 
-	a = 25;			//order of plane
+	if(write2 == 1){
+		file2 = fopen(buffer2, "a");	
+		if(file2 == NULL){
+			printf("EXIT_FAILURE \n");
+		}
+	}	
+
+	a = 49;			//order of plane
 
 	points = a*a+a+1;		//number of points/lines
 
@@ -106,10 +137,12 @@ int i,j,k,l,m,n,a,b,m1,n1,c1,r,r1,m2,n2,n3,m3,l1,l2,z1,pl1,pl2,pl11,pl22,k3;
 //
 /////////////////////////////////////////////////////////////////////////////////////
 	
-	
-	holder = 10000; 
+	printf("Enter number of times to run code \n");
+	scanf("%d", &holder);
 
-	num = 2;
+	printf("Enter number of times to do meet/join operation \n");
+	scanf("%d", &num);
+	
 
 	int sol= holder;										//max number of nonisomorphic PS
 
@@ -222,8 +255,8 @@ for(i1 = 0; i1<holder; i1++){
 //To start with quadrangle of points
 //
 /////////////////////////////////////////////////////////////////////////////////////
-
 /*
+
 	for(i = 0; i<4; i++){
 
 		v1 = randint(points-1,0);
@@ -304,8 +337,8 @@ for(i1 = 0; i1<holder; i1++){
 	}
 	
 
-*/
 
+*/
 /////////////////////////////////////////////////////////////////////////////////////
 //
 //To start with a triangle of points
@@ -538,6 +571,10 @@ for(i1 = 0; i1<holder; i1++){
 
 		densenauty(graphs[k1],lab,ptn,orbits,&options,&stats,m3,n3,dummy);
 
+		if(write2 == 1){
+			writeg6(file2, graphs[k1],m3,n3);
+		}
+
 		aut[k1]= autsize2(stats.grpsize1,stats.grpsize2);
 		
 		par[k1] = n3;
@@ -568,7 +605,7 @@ for(i1 = 0; i1<holder; i1++){
 	EMPTYGRAPH(test2,m3,n3);
 
 	dif = 0;
-
+	
 	for(i = 0; i<k1; i++){
 		
 		k3 = 0;
@@ -604,6 +641,10 @@ for(i1 = 0; i1<holder; i1++){
 				}
 
 				densenauty(temp2,lab,ptn,orbits,&options,&stats,m3,n3,test2);
+
+				if(write2 == 1){
+					writeg6(file2, temp2,m3,n3);
+				}
 	
 				aut[k1]= autsize2(stats.grpsize1,stats.grpsize2);
 
@@ -630,6 +671,10 @@ for(i1 = 0; i1<holder; i1++){
 
 			densenauty(temp2,lab,ptn,orbits,&options,&stats,m3,n3,test2);
 
+			if(write2 == 1){
+				writeg6(file2, temp2,m3,n3);
+			}
+
 			aut[k1]= autsize2(stats.grpsize1,stats.grpsize2);
 
 			counter[k1]+=1;
@@ -643,7 +688,10 @@ for(i1 = 0; i1<holder; i1++){
 	
 }	
 
-
+	if(write2 == 1){
+		fclose(file2);
+	}	
+	
 /////////////////////////////////////////////////////////////////////////////////////
 //
 //For finding number of points, lines
@@ -659,6 +707,24 @@ for(i1 = 0; i1<holder; i1++){
 		numlines[i] = par[i] - numpoints[i];
 	}
 	
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Write relevant information to disk.
+//
+/////////////////////////////////////////////////////////////////////////////////////
+if(write3==1){
+
+	file3 = fopen(buffer3, "w");	
+	if(file3 == NULL){
+		printf("EXIT_FAILURE \n");
+	}
+
+	for(i = 0; i<k1; i++){
+		fprintf(file3, "%d %d %d %d\n", numpoints[i],numlines[i],counter[i],aut[i]);
+	}
+
+	fclose(file3);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 //
@@ -672,9 +738,12 @@ for(i1 = 0; i1<holder; i1++){
 
 		printf("#p = %d, #l = %d, counter[%d] = %d, aut[%d] = %d \n",numpoints[i],numlines[i],i,counter[i],i, aut[i]);
 	
-//		incprint(graphs[i],1, par[i]);
+		if(write4==1){
+
+			incprint(graphs[i],1, par[i]);
 	
-		printf("\n");
+			printf("\n");
+		}
 	}
 
 	time = clock() - time;
