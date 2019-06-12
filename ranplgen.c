@@ -11,9 +11,18 @@ compares up to isomorphism and duality and puts them in a matrix.
 
 */
 
-void main(){
+/*
 
-	int p,l,m,i,i1,j,k,put, countd, th, row, flag, flag2, num,s,counter,n1,m1,k1,k3, lo,prop;
+INSTRUCTIONS: argv[1] is number of points, argv[2] is the number of lines, argv[3] is # of times to run code
+
+*/
+
+
+
+
+void main(int argc, char *argv[]){
+
+	int p,l,m,i,i1,j,k,put, countd, th, row, flag, flag2,s,counter,n1,m1,k1,k3, lo,prop;
 
 	FILE *file;
 	FILE *file2;
@@ -29,6 +38,9 @@ void main(){
 	int* lab;
 	int* ptn;
 	int* orbits;
+	int num[3];
+	int numc;
+	int count4;
 
 	options.getcanon = TRUE;				//get canonical labeling of graph
 
@@ -44,27 +56,30 @@ void main(){
 
 	char buffer2[200];
 
-	printf("Enter number of points \n");
-	scanf("%d", &p);
+	for(i = 0; i<3; i++){
+		if(sscanf(argv[i+1], "%d", &num[i]) != 1){
+			printf("error, not an integer");
+		}
+	}
 
-	printf("Enter number of lines \n");
-	scanf("%d", &l);
+	counter = num[2];
 
-	snprintf(buffer, sizeof(buffer), "/home/jfloresm/Documents/Research/linspace/planes/p%dl%dg6.txt", p,l);
+	snprintf(buffer, sizeof(buffer), "/run/media/jfloresm/766C41A15D195E71/ranpl/g6/%d_%d_%d_g6.txt", num[0],num[1],num[2]);
 	
-	snprintf(buffer2, sizeof(buffer), "/home/jfloresm/Documents/Research/linspace/planes/p%dl%dinf.txt", p,l);
+	snprintf(buffer2, sizeof(buffer), "/run/media/jfloresm/766C41A15D195E71/ranpl/inf/%d_%d_%d_inf.txt",	num[0],num[1],num[2]);
 	
-	printf("Enter number of times to run code \n");
-	scanf("%d", &counter);
-
-	
+		
 	total = (int *)malloc(counter*sizeof(int));
 
 	zero(total, counter);
 
 	aut = (int *)malloc(counter*sizeof(int));
 
-	n1 = p+l;								//vertices in bipartite graph
+	p = num[0];
+
+	l = num[1];
+
+	n1 = num[0]+num[1];								//vertices in bipartite graph
 
 	m1 = SETWORDSNEEDED(n1);						
 
@@ -96,7 +111,7 @@ void main(){
 
 	k1 = 0;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+/*	
 	printf("Enter 1 to write graphs in g6 format to disk (0 otherwise) \n");
 	scanf("%d", &write);
 
@@ -105,15 +120,13 @@ void main(){
 	
 	printf("Enter 1 to print out graphs (0 otherwise) \n");
 	scanf("%d", &write3);	
-	
+*/
 
-	if(write==1){
-		file = fopen(buffer, "a");	
-		if(file == NULL){
-			printf("EXIT_FAILURE \n");
+	write = 1;
+	write2 = 1;
+	write3 = 0;	
+
 	
-		}
-	}
 
 for(i1 = 0; i1 < counter; i1++){
 
@@ -171,7 +184,7 @@ for(i1 = 0; i1 < counter; i1++){
 
 		for(i = 0; i<p; i++){
 
-			num = 0;
+			numc = 0;
 
 			if(i == row){
 				continue;
@@ -183,9 +196,9 @@ for(i1 = 0; i1 < counter; i1++){
 									 
 					temp = (ls[i*m+j] & ls[row*m+j]);
 		
-					num += POPCOUNT(temp);
+					numc += POPCOUNT(temp);
 
-					if(num >= 2){
+					if(numc >= 2){
 
 						DELELEMENT(ls + row*m, th);
 
@@ -247,7 +260,7 @@ for(i1 = 0; i1 < counter; i1++){
 
 			for(i = 0; i<p; i++){
 
-				num = 0;
+				numc = 0;
 
 				if(i == row){
 					continue;
@@ -259,9 +272,9 @@ for(i1 = 0; i1 < counter; i1++){
 									 
 						temp = (ls[i*m+j] & ls[row*m+j]);
 		
-						num += POPCOUNT(temp);
+						numc += POPCOUNT(temp);
 
-						if(num >= 2){
+						if(numc >= 2){
 
 							DELELEMENT(ls + row*m, th);
 
@@ -285,7 +298,7 @@ for(i1 = 0; i1 < counter; i1++){
 			
 	}
 
-	if(linsp(ls,p,m)){							//COMMENT OUT IF WANT PLS INSTEAD OF JUST LS or STARTED WITH PL
+	if(linsp(ls,p,m) && emptyg(ls,m1)){							//COMMENT OUT IF WANT PLS INSTEAD OF JUST LS or STARTED WITH PL
 
 		EMPTYGRAPH(holder, m1,n1);
 
@@ -309,12 +322,12 @@ for(i1 = 0; i1 < counter; i1++){
 
 			densenauty(graphs[k1],lab,ptn,orbits,&options,&stats,m1,n1,temp1);
 
-			if(write==1){
+/*			if(write==1){
 
 				writeg6(file, graphs[k1],m1,n1);
 		
 			}
-
+*/
 			aut[k1]= autsize2(stats.grpsize1,stats.grpsize2);
 		
 			total[k1]+=1;
@@ -364,13 +377,13 @@ for(i1 = 0; i1 < counter; i1++){
 			EMPTYGRAPH(temp2, m1,n1);
 
 			densenauty(holder,lab,ptn,orbits,&options,&stats,m1,n1,temp2);
-
+/*
 			if(write==1){
 
 				writeg6(file, holder,m1,n1);
 
 			}
-
+*/
 			aut[k1]= autsize2(stats.grpsize1,stats.grpsize2);
 
 			total[k1]+=1;
@@ -383,11 +396,31 @@ for(i1 = 0; i1 < counter; i1++){
 	}
 }
 
-	if(write==1){
+printf("k1 = %d \n",k1);
 
-		fclose(file);
-	
+/////////////////////////////////////////////////////////////////////////////////////
+//
+//Write graphs to disk.
+//
+/////////////////////////////////////////////////////////////////////////////////////
+
+
+if(write==1 && k1>=1){
+
+		
+	file = fopen(buffer, "a");	
+	if(file == NULL){
+		printf("EXIT_FAILURE \n");
 	}
+
+
+	for(i = 0; i<k1;i++){
+		densenauty(graphs[i],lab,ptn,orbits,&options,&stats,m1,n1,temp1);
+		writeg6(file, graphs[i],m1,n1);
+	}
+
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 //
@@ -423,6 +456,15 @@ for(i1 = 0; i1 < counter; i1++){
 		}
 
 	}
+
+	free(graphs);
+	free(holder);
+	free(temp1);
+	free(temp2);
+	free(tracker);
+	free(ls);
+	free(aut);
+	free(total);
 
 	time = clock() - time;
 
